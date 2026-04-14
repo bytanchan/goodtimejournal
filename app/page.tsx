@@ -383,7 +383,7 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
 .overlay {
   position: fixed; inset: 0;
   background: rgba(28,25,23,0.5); backdrop-filter: blur(6px);
-  z-index: 200; display: none; align-items: flex-end; justify-content: center;
+  z-index: 200; display: none; align-items: center; justify-content: center;
   padding: 16px; overflow: hidden;
 }
 .overlay.open { display: flex; }

@@ -384,12 +384,12 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
   position: fixed; inset: 0;
   background: rgba(28,25,23,0.5); backdrop-filter: blur(6px);
   z-index: 200; display: none; align-items: center; justify-content: center;
-  padding: 16px; overflow: hidden;
+  padding: 16px; overflow: auto;
 }
 .overlay.open { display: flex; }
 .sheet {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--radius-xl); width: 100%; max-width: 430px;
+  border-radius: var(--radius-xl); width: 100%; max-width: 430px; box-sizing: border-box;
   max-height: calc(100svh - 48px);
   overflow-y: auto;
   overscroll-behavior: contain;

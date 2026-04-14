@@ -390,12 +390,12 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
 .sheet {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-xl); width: 100%; max-width: 430px;
-  max-height: calc(100svh - 64px);
+  max-height: calc(100svh - 48px);
   overflow-y: auto;
   overscroll-behavior: contain;
   animation: slideUp 0.32s var(--ease-out) both;
-  padding: 24px 22px;
-  padding-bottom: max(24px, calc(env(safe-area-inset-bottom) + 16px));
+  padding: 20px 22px;
+  padding-bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px));
   box-shadow: var(--shadow-lg);
 }
 .sheet::-webkit-scrollbar { display: none; }

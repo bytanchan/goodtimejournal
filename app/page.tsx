@@ -29,6 +29,7 @@ declare global {
   function openJournalFilter(): void;
   function closeJournalFilter(): void;
   function openLogWithDate(dateStr: string): void;
+  function handleSignIn(): void;
   function handleSignOut(): void;
 }
 

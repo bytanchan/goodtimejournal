@@ -394,7 +394,7 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
   overflow-y: auto;
   overscroll-behavior: contain;
   animation: slideUp 0.32s var(--ease-out) both;
-  padding: 20px 22px;
+  padding: 20px 16px;
   padding-bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px));
   box-shadow: var(--shadow-lg);
 }

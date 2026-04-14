@@ -159,7 +159,7 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
 /* ── SCREENS ──────────────────────────────────────────── */
 /* App starts invisible — JS reveals correct screen after checking localStorage (prevents onboarding flash) */
 #app { min-height: 100vh; opacity: 0; transition: opacity 0.15s; }
-.screen { display: none; min-height: 100vh; flex-direction: column; animation: fadeUp 0.3s var(--ease-out) both; }
+.screen { display: none; min-height: 100vh; flex-direction: column; animation: fadeUp 0.3s var(--ease-out) both; padding-bottom: max(80px, calc(80px + env(safe-area-inset-bottom))); }
 .screen.active { display: flex; }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }

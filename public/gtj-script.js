@@ -78,6 +78,7 @@ function setGreeting() {
 // Hydration guard: app starts at opacity:0 in CSS, JS reveals after checking localStorage.
 // This prevents the onboarding screen from flashing on page refresh (requirement #1).
 function showOnboard() {
+  // Already onboarded: skip straight to app (or auth if no session)
   if (localStorage.getItem('gtjHasSeenOnboarding')) {
     goApp();
     return;
@@ -91,15 +92,35 @@ function obNext() {
   if (S.obStep < 2) {
     S.obStep++;
     updateOb();
-  } else {
-    const nameInput = document.getElementById('ob-name');
-    const name = nameInput ? nameInput.value.trim() : '';
-    if (name) localStorage.setItem('gtjUserName', name);
-    localStorage.setItem('gtjHasSeenOnboarding', '1');
-    goto('s-today');
-    showNav();
+    return;
   }
+
+  // Final onboarding step — save name
+  const nameInput = document.getElementById('ob-name');
+  const name = nameInput ? nameInput.value.trim() : '';
+  if (name) localStorage.setItem('gtjUserName', name);
+
+  // Supabase configured → show sign-in screen.
+  // Show the "Continue without account" skip button since user just came from onboarding.
+  if (window.dbGetSession) {
+    const skipBtn = document.getElementById('auth-skip-btn');
+    if (skipBtn) skipBtn.style.display = '';
+    goto('s-auth');
+    return;
+  }
+
+  // No Supabase — go straight to app
+  localStorage.setItem('gtjHasSeenOnboarding', '1');
+  goApp();
 }
+
+// Called from the "Continue without account" button on the auth screen.
+// Only reachable after onboarding — sets flag so they go straight to app on return.
+function skipAuth() {
+  localStorage.setItem('gtjHasSeenOnboarding', '1');
+  goApp();
+}
+window.skipAuth = skipAuth;
 
 function updateOb() {
   for (let i = 0; i < 3; i++) {
@@ -861,10 +882,10 @@ function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.style.opacity = '1';
-  t.style.transform = 'translateX(-50%) translateY(0)';
+  t.style.transform = 'translateY(0)';
   setTimeout(() => {
     t.style.opacity = '0';
-    t.style.transform = 'translateX(-50%) translateY(12px)';
+    t.style.transform = 'translateY(12px)';
   }, 2200);
 }
 
@@ -903,12 +924,14 @@ async function handleSignOut() {
   } catch (err) {
     console.warn('Sign-out error:', err?.message ?? err);
   }
-  // Clear local state and go back to auth screen
+  // Clear session state — keep gtjHasSeenOnboarding so returning user sees auth, not onboarding again
   S.entries = [];
-  localStorage.removeItem('gtjHasSeenOnboarding');
   localStorage.removeItem('gtjUserName');
   document.getElementById('bnav').classList.remove('show');
   document.getElementById('fab').classList.add('gone');
+  // Hide skip button — returning signed-out users should be nudged to sign in, not skip
+  const skipBtn = document.getElementById('auth-skip-btn');
+  if (skipBtn) skipBtn.style.display = 'none';
   goto('s-auth');
 }
 window.handleSignOut = handleSignOut;
@@ -919,42 +942,54 @@ const appEl = document.getElementById('app');
 if (appEl) appEl.style.opacity = '1';
 
 async function initApp() {
-  // If Supabase isn't configured (no env vars), skip auth and go straight to app
+  const hasOnboarded = !!localStorage.getItem('gtjHasSeenOnboarding');
+
+  // If Supabase isn't configured (no env vars), skip auth entirely
   if (!window.dbGetSession) {
-    if (localStorage.getItem('gtjHasSeenOnboarding')) { goApp(); } else { goto('s-land'); }
+    if (hasOnboarded) { goApp(); } else { goto('s-land'); }
     return;
   }
 
   try {
-    // Subscribe to auth state changes — handles both initial session and OAuth redirect
+    // Subscribe to auth state changes — handles both initial load and OAuth redirect return
     window.dbOnAuthStateChange(function(session) {
       if (session) {
-        // Signed in — show sign-out button, proceed to app
+        // Signed in — show sign-out button, load data, go to app
         const signoutBtn = document.getElementById('signout-btn');
         if (signoutBtn) signoutBtn.style.display = '';
-        if (localStorage.getItem('gtjHasSeenOnboarding')) {
-          goApp();
-        } else {
-          goto('s-land');
-          document.getElementById('app').style.opacity = '1';
-        }
+        localStorage.setItem('gtjHasSeenOnboarding', '1'); // signing in implies onboarded
+        goApp();
       } else {
-        // No session — show auth screen
+        // No session
         document.getElementById('bnav').classList.remove('show');
         document.getElementById('fab').classList.add('gone');
-        goto('s-auth');
+        if (hasOnboarded) {
+          // Returning user who signed out — go straight to sign-in, no skip button
+          const skipBtn = document.getElementById('auth-skip-btn');
+          if (skipBtn) skipBtn.style.display = 'none';
+          goto('s-auth');
+        } else {
+          // Brand new user — show landing, let them reach auth via onboarding
+          goto('s-land');
+        }
       }
     });
 
-    // Get initial session (triggers the callback above synchronously if session exists)
+    // Kick off initial session check — callback above fires synchronously if session cached
     const session = await window.dbGetSession();
     if (!session) {
-      // No session — show auth; the onAuthStateChange subscription handles sign-in redirect
-      goto('s-auth');
+      // No cached session — route based on onboarding state
+      if (hasOnboarded) {
+        const skipBtn = document.getElementById('auth-skip-btn');
+        if (skipBtn) skipBtn.style.display = 'none';
+        goto('s-auth');
+      } else {
+        goto('s-land');
+      }
     }
   } catch (err) {
     console.warn('Auth init failed, falling back to no-auth mode:', err?.message ?? err);
-    if (localStorage.getItem('gtjHasSeenOnboarding')) { goApp(); } else { goto('s-land'); }
+    if (hasOnboarded) { goApp(); } else { goto('s-land'); }
   }
 }
 

@@ -633,7 +633,7 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
               </p>
 
               <div style={{maxWidth:'340px'}}>
-                <button className="btn btn-primary btn-full" onClick={() => window.showOnboard()}>Begin your journal</button>
+                <button className="btn btn-accent btn-full" onClick={() => window.showOnboard()}>Start</button>
               </div>
             </div>
           </div>
@@ -645,19 +645,19 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
         {/* ══════════════════════════════════════════════════ */}
         <div className="screen" id="s-auth">
           <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'24px 20px',maxWidth:'430px',margin:'0 auto',width:'100%',boxSizing:'border-box'}}>
-            <div style={{marginBottom:'48px',textAlign:'center'}}>
-              <div style={{fontSize:'0.75rem',fontWeight:500,letterSpacing:'0.06em',textTransform:'uppercase',color:'var(--ink-3)',marginBottom:'16px'}}>Good Time Journal</div>
-              <h1 style={{fontFamily:'var(--font-body)',fontSize:'clamp(1.75rem,7vw,2.25rem)',fontWeight:400,letterSpacing:'-0.01em',lineHeight:1.15,marginBottom:'16px',color:'var(--ink)'}}>
-                What actually<br /><em style={{color:'var(--accent)'}}>energizes</em> you?
+            <div style={{marginBottom:'40px',textAlign:'center'}}>
+              <div style={{fontSize:'0.75rem',fontWeight:500,letterSpacing:'0.06em',textTransform:'uppercase',color:'var(--ink-3)',marginBottom:'20px'}}>Good Time Journal</div>
+              <h1 style={{fontFamily:'var(--font-ui)',fontSize:'1.5rem',fontWeight:500,letterSpacing:'-0.01em',lineHeight:1.2,marginBottom:'12px',color:'var(--ink)'}}>
+                Save your journal
               </h1>
-              <p style={{fontSize:'0.9375rem',color:'var(--ink-3)',lineHeight:1.65,maxWidth:'300px',margin:'0 auto'}}>
-                Sign in to save your journal and access it from any device.
+              <p style={{fontSize:'0.9375rem',color:'var(--ink-3)',lineHeight:1.65,maxWidth:'280px',margin:'0 auto'}}>
+                Sign in to sync across devices and keep your data safe.
               </p>
             </div>
-            <div style={{width:'100%',maxWidth:'320px',display:'flex',flexDirection:'column',gap:'12px'}}>
+            <div style={{width:'100%',maxWidth:'320px',display:'flex',flexDirection:'column',gap:'10px'}}>
               <button
                 id="google-signin-btn"
-                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'10px',width:'100%',height:'52px',borderRadius:'var(--radius-md)',background:'var(--surface)',border:'1.5px solid var(--border-2)',fontSize:'0.9375rem',fontWeight:500,color:'var(--ink)',cursor:'pointer',transition:'all 0.18s var(--ease-out)',boxShadow:'var(--shadow-xs)'}}
+                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'10px',width:'100%',height:'52px',borderRadius:'var(--radius-md)',background:'var(--surface)',border:'1.5px solid var(--border-2)',fontSize:'1rem',fontWeight:500,color:'var(--ink)',cursor:'pointer',transition:'all 0.18s var(--ease-out)',boxShadow:'var(--shadow-xs)'}}
                 onClick={() => window.handleSignIn()}
               >
                 <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -668,7 +668,15 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
                 </svg>
                 Continue with Google
               </button>
-              <p style={{fontSize:'0.75rem',color:'var(--ink-4)',textAlign:'center',lineHeight:1.6}}>
+              {/* Skip option — shown only after onboarding (returning signed-out users never see it) */}
+              <button
+                id="auth-skip-btn"
+                style={{display:'none',width:'100%',height:'44px',borderRadius:'var(--radius-md)',background:'none',border:'none',fontSize:'0.875rem',fontWeight:400,color:'var(--ink-3)',cursor:'pointer'}}
+                onClick={() => window.skipAuth()}
+              >
+                Continue without account
+              </button>
+              <p style={{fontSize:'0.75rem',color:'var(--ink-4)',textAlign:'center',lineHeight:1.6,marginTop:'4px'}}>
                 Your data is private and only visible to you.
               </p>
             </div>

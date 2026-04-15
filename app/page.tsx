@@ -123,7 +123,15 @@ export default function Home() {
 
 /* ── RESET ────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { height: 100%; -webkit-tap-highlight-color: transparent; }
+html {
+  height: 100%;
+  /* Safari fix: setting overflow-x on both html AND body is required.
+     overflow-x:hidden on body alone propagates to html in Safari, which
+     changes the fixed-positioning reference from the viewport to the body's
+     scroll container — breaking modals and allowing horizontal scroll. */
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
 body {
   font-family: var(--font-ui);
   background: var(--bg);
@@ -158,7 +166,10 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
 
 /* ── SCREENS ──────────────────────────────────────────── */
 /* App starts invisible — JS reveals correct screen after checking localStorage (prevents onboarding flash) */
-#app { min-height: 100vh; opacity: 0; transition: opacity 0.15s; }
+/* Safari fix: body is display:flex, so #app is a flex child.
+   Flex children default to min-width:auto — they won't shrink below content width.
+   width:100% + min-width:0 ensures #app never exceeds viewport width. */
+#app { min-height: 100vh; opacity: 0; transition: opacity 0.15s; width: 100%; min-width: 0; }
 .screen { display: none; min-height: 100vh; flex-direction: column; animation: fadeUp 0.3s var(--ease-out) both; padding-bottom: max(80px, calc(80px + env(safe-area-inset-bottom))); }
 .screen.active { display: flex; }
 @keyframes fadeUp {
@@ -445,7 +456,9 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
 
 /* ── WRAPPED CARD ─────────────────────────────────────── */
 .wrapped {
-  border-radius: var(--radius-xl); overflow: hidden; position: relative;
+  /* isolation:isolate forces a stacking context so filter:blur() blobs are clipped
+     to the card boundary by WebKit's compositing engine, regardless of overflow */
+  border-radius: var(--radius-xl); overflow: hidden; isolation: isolate; position: relative;
   min-height: 500px; display: flex; flex-direction: column; justify-content: space-between;
   padding: 28px 24px;
   background: linear-gradient(145deg, #1a0533 0%, #0d1b3e 45%, #031a12 100%);
@@ -575,8 +588,15 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
 
 /* ── TOAST ────────────────────────────────────────────── */
 #toast {
-  position: fixed; bottom: 96px; left: 50%;
-  transform: translateX(-50%) translateY(12px);
+  /* Safari fix: avoid left:50% + translateX(-50%) on fixed elements.
+     When body's scroll context is mis-sized (Safari overflow bug), left:50%
+     resolves to the wrong reference, pushing the toast right and creating
+     invisible overflow. Instead use left/right+margin:auto — Safari-safe. */
+  position: fixed; bottom: 96px;
+  left: 16px; right: 16px;
+  margin: 0 auto;
+  width: max-content; max-width: calc(100% - 32px);
+  transform: translateY(12px);
   background: var(--ink); color: var(--bg);
   border-radius: 100px; padding: 9px 18px;
   font-size: 0.875rem; font-weight: 500;
@@ -592,7 +612,10 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
         {/* LANDING                                            */}
         {/* ══════════════════════════════════════════════════ */}
         <div className="screen" id="s-land">
-          <div style={{position:'relative',overflow:'hidden',minHeight:'100vh',display:'flex',flexDirection:'column'}}>
+          {/* overflow:clip (not hidden) — clip does a true paint clip so filter:blur() on
+              absolute children cannot bleed through the boundary. overflow:hidden creates
+              a scroll container which WebKit may not honour for blurred children. */}
+          <div style={{position:'relative',overflow:'clip',minHeight:'100vh',display:'flex',flexDirection:'column'}}>
             <div className="landing-blob" style={{width:'420px',height:'420px',background:'rgba(92,79,207,0.12)',top:'-100px',right:'-100px'}}></div>
             <div className="landing-blob" style={{width:'320px',height:'320px',background:'rgba(123,110,232,0.09)',bottom:'-60px',left:'-80px'}}></div>
 

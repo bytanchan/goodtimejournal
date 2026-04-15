@@ -371,9 +371,9 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
 .field {
   background: var(--surface-2); border: 1.5px solid var(--border-2);
   border-radius: var(--radius-md); padding: 13px 16px;
-  font-size: 0.9375rem; color: var(--ink); outline: none; width: 100%;
+  font-size: 1rem; color: var(--ink); outline: none; width: 100%;
   transition: border-color 0.2s, box-shadow 0.2s;
-  box-sizing: border-box;
+  box-sizing: border-box; min-width: 0;
 }
 .field::placeholder { color: var(--ink-3); }
 .field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); background: var(--surface); }

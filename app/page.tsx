@@ -165,7 +165,7 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.page { max-width: 430px; width: 100%; margin: 0 auto; padding: 0 20px; flex: 1; }
+.page { max-width: 430px; width: 100%; margin: 0 auto; padding: 0 20px; flex: 1; box-sizing: border-box; min-width: 0; }
 .pb-nav { padding-bottom: calc(88px + max(8px, env(safe-area-inset-bottom))); }
 
 /* ── NAV ──────────────────────────────────────────────── */
@@ -373,6 +373,7 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
   border-radius: var(--radius-md); padding: 13px 16px;
   font-size: 0.9375rem; color: var(--ink); outline: none; width: 100%;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 .field::placeholder { color: var(--ink-3); }
 .field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); background: var(--surface); }
@@ -620,7 +621,7 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
         {/*        no active session                           */}
         {/* ══════════════════════════════════════════════════ */}
         <div className="screen" id="s-auth">
-          <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'24px 20px',maxWidth:'430px',margin:'0 auto',width:'100%'}}>
+          <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'24px 20px',maxWidth:'430px',margin:'0 auto',width:'100%',boxSizing:'border-box'}}>
             <div style={{marginBottom:'48px',textAlign:'center'}}>
               <div style={{fontSize:'0.75rem',fontWeight:500,letterSpacing:'0.06em',textTransform:'uppercase',color:'var(--ink-3)',marginBottom:'16px'}}>Good Time Journal</div>
               <h1 style={{fontFamily:'var(--font-body)',fontSize:'clamp(1.75rem,7vw,2.25rem)',fontWeight:400,letterSpacing:'-0.01em',lineHeight:1.15,marginBottom:'16px',color:'var(--ink)'}}>
@@ -938,7 +939,7 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
         {/* Populated by renderWrapped() from real S.entries   */}
         {/* ══════════════════════════════════════════════════ */}
         <div className="overlay" id="wrapped-overlay" style={{alignItems:'center'}}>
-          <div style={{width:'100%',maxWidth:'360px',padding:'0 4px'}}>
+          <div style={{width:'100%',maxWidth:'360px',padding:'0 4px',boxSizing:'border-box'}}>
             <div className="wrapped">
               <div className="wrapped-blob" style={{width:'280px',height:'280px',background:'rgba(92,79,207,0.55)',top:'-80px',left:'-60px'}}></div>
               <div className="wrapped-blob" style={{width:'220px',height:'220px',background:'rgba(123,110,232,0.35)',bottom:'-60px',right:'-40px'}}></div>

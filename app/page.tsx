@@ -292,25 +292,25 @@ input, textarea { font-family: var(--font-ui); color: inherit; background: none;
 }
 
 /* ── WEEK STRIP ───────────────────────────────────────── */
-.day-dots { display: flex; gap: 2px; }
+.day-dots { display: flex; gap: 1px; min-width: 0; }
 .day-dot-week {
   flex: 1; display: flex; flex-direction: column; align-items: center;
-  gap: 4px; padding: 4px 2px; border-radius: var(--radius-sm);
-  cursor: default; transition: background 0.15s;
+  gap: 3px; padding: 2px 1px; border-radius: var(--radius-sm);
+  cursor: default; transition: background 0.15s; min-width: 0;
 }
 .day-dot-week.tappable { cursor: pointer; }
 .day-dot-week.tappable:hover { background: var(--accent-soft); }
 .week-dot-label {
-  font-size: 0.5625rem; font-weight: 500; letter-spacing: 0.04em;
+  font-size: 0.5rem; font-weight: 500; letter-spacing: 0.02em;
   text-transform: uppercase; color: var(--ink-3); line-height: 1;
 }
 .day-dot-week.today-col .week-dot-label { color: var(--accent); }
 .week-dot-num {
-  width: 28px; height: 28px; border-radius: 50%;
+  width: 24px; height: 24px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.6875rem; font-weight: 500;
+  font-size: 0.625rem; font-weight: 500;
   background: var(--bg-3); color: var(--ink-3);
-  transition: all 0.2s;
+  transition: all 0.2s; flex-shrink: 0;
 }
 .week-dot-num.done      { background: var(--ink-2); color: var(--bg); }
 .week-dot-num.today     { background: var(--accent); color: #fff; box-shadow: 0 2px 8px var(--accent-glow); }

@@ -224,7 +224,7 @@ function entryRowHTML(e) {
         <div class="entry-name">${escapeHTML(e.name)}</div>
         <div class="entry-pills">
           <span class="pill pill-energy">Energy ${scoreStr(e.energy)}</span>
-          <span class="pill pill-engage">Engage ${scoreStr(e.engage)}</span>
+          <span class="pill pill-engage">Engage ${scoreStr(e.engagement)}</span>
           ${e.flow ? '<span class="pill pill-flow">Flow</span>' : ''}
         </div>
         ${e.note ? `<div class="entry-note">${escapeHTML(e.note)}</div>` : ''}
@@ -279,7 +279,7 @@ function renderJournal() {
   if (S.jSort === 'energy') {
     filtered.sort((a, b) => b.energy - a.energy);
   } else if (S.jSort === 'engage') {
-    filtered.sort((a, b) => b.engage - a.engage);
+    filtered.sort((a, b) => b.engagement - a.engagement);
   } else {
     // recent: sort by entry_date desc, then by id desc as tiebreaker
     filtered.sort((a, b) => {
@@ -332,20 +332,20 @@ function renderJournal() {
 function generateInsight() {
   if (S.entries.length < 7) return null;
 
-  const sorted = [...S.entries].sort((a,b) => (b.energy + b.engage) - (a.energy + a.engage));
+  const sorted = [...S.entries].sort((a,b) => (b.energy + b.engagement) - (a.energy + a.engagement));
   const top    = sorted[0];
   const bottom = sorted[sorted.length - 1];
   const flowEntries = S.entries.filter(e => e.flow);
   const avgEnergy = S.entries.reduce((s,e) => s + e.energy, 0) / S.entries.length;
-  const avgEngage = S.entries.reduce((s,e) => s + e.engage, 0) / S.entries.length;
+  const avgEngage = S.entries.reduce((s,e) => s + e.engagement, 0) / S.entries.length;
 
   const parts = [];
   if (top) {
-    const score = ((top.energy + top.engage) / 2).toFixed(1);
+    const score = ((top.energy + top.engagement) / 2).toFixed(1);
     parts.push(`"${escapeHTML(top.name)}" is your highest-rated activity (avg ${score}/5).`);
   }
   if (bottom && bottom.id !== top?.id) {
-    const score = ((bottom.energy + bottom.engage) / 2).toFixed(1);
+    const score = ((bottom.energy + bottom.engagement) / 2).toFixed(1);
     parts.push(`"${escapeHTML(bottom.name)}" scores lowest at ${score}/5.`);
   }
   if (flowEntries.length > 0) {
@@ -386,7 +386,7 @@ function renderPatterns() {
 
   // ≥1 — overall metrics (energy, engagement, flow count across all entries)
   const avgE  = (S.entries.reduce((s,e)=>s+e.energy,0)/n).toFixed(1);
-  const avgEn = (S.entries.reduce((s,e)=>s+e.engage,0)/n).toFixed(1);
+  const avgEn = (S.entries.reduce((s,e)=>s+e.engagement,0)/n).toFixed(1);
   const flowCount = S.entries.filter(e=>e.flow).length;
   const entryLabel = n === 1 ? '1 entry' : n + ' entries';
 
@@ -411,9 +411,9 @@ function renderPatterns() {
 
   // ≥3 — best single activity
   if (n >= 3) {
-    const sorted = [...S.entries].sort((a,b)=>(b.energy+b.engage)-(a.energy+a.engage));
+    const sorted = [...S.entries].sort((a,b)=>(b.energy+b.engagement)-(a.energy+a.engagement));
     const best = sorted[0];
-    const bestScore = ((best.energy+best.engage)/2).toFixed(1);
+    const bestScore = ((best.energy+best.engagement)/2).toFixed(1);
     html += `
       <div class="divider"></div>
       <div class="t-xs ink-3" style="margin-bottom:10px;">Highest rated</div>
@@ -424,7 +424,7 @@ function renderPatterns() {
 
   // ≥5 — top energizers + drains list
   if (n >= 5) {
-    const sorted = [...S.entries].sort((a,b)=>(b.energy+b.engage)-(a.energy+a.engage));
+    const sorted = [...S.entries].sort((a,b)=>(b.energy+b.engagement)-(a.energy+a.engagement));
     const confidenceNote = n < 10
       ? '<span style="font-size:0.6875rem;color:var(--ink-3);font-style:italic;font-weight:400;text-transform:none;letter-spacing:0;">early signal</span>'
       : '';
@@ -475,8 +475,8 @@ function renderPatterns() {
 }
 
 function patRow(e, type) {
-  const score = ((e.energy+e.engage)/2).toFixed(1);
-  const pct   = ((e.energy+e.engage)/10)*100;
+  const score = ((e.energy+e.engagement)/2).toFixed(1);
+  const pct   = ((e.energy+e.engagement)/10)*100;
   const color = type === 'top'
     ? 'linear-gradient(90deg,var(--accent),var(--accent-2))'
     : 'linear-gradient(90deg,var(--error),#F87171)';
@@ -587,7 +587,7 @@ function openLogEdit(id) {
   document.getElementById('log-name').value = entry.name;
   document.getElementById('log-note').value = entry.note || '';
   document.getElementById('energy-slider').value = entry.energy;
-  document.getElementById('engage-slider').value = entry.engage;
+  document.getElementById('engage-slider').value = entry.engagement;
   // Pre-fill date from entry_date, or fall back to dateFromCreatedAt
   const dateField = document.getElementById('log-date');
   if (dateField) dateField.value = entry.entry_date || dateFromCreatedAt(entry);
@@ -673,22 +673,24 @@ async function saveEntry(e) {
   if (editingId !== null) {
     const idx = S.entries.findIndex(e => e.id === editingId);
     if (idx !== -1) {
-      S.entries[idx] = { ...S.entries[idx], name, energy, engage, flow: S.flow, note, entry_date };
+      S.entries[idx] = { ...S.entries[idx], name, energy, engagement: engage, flow: S.flow, note, entry_date };
       closeLog();
       renderAll();
       toast('Activity updated ✓');
       if (window.dbUpdateEntry) {
         try {
-          await window.dbUpdateEntry(editingId, { name, energy, engage, flow: S.flow, note, entry_date });
+          await window.dbUpdateEntry(editingId, { name, energy, engagement: engage, flow: S.flow, note, entry_date });
         } catch (err) {
-          console.error('Supabase update failed:', err?.message ?? err);
+          console.error('Supabase update failed:', err?.message ?? err, err);
+          toast('Update failed — check console for details.');
         }
       }
     }
     return;
   }
 
-  const entry = { name, energy, engage, flow: S.flow, note, day: S.day, tod: logTod, entry_date };
+  // DB column is "engagement" — map from local var name
+  const entry = { name, energy, engagement: engage, flow: S.flow, note, tod: logTod, entry_date };
 
   if (window.dbSaveEntry) {
     try {
@@ -698,14 +700,12 @@ async function saveEntry(e) {
       renderAll();
       toast('Activity saved ✓');
     } catch (err) {
-      // Supabase not configured or unavailable — save locally so the user isn't blocked
-      console.warn('Supabase unavailable, saving locally:', err?.message ?? err);
-      S.entries.unshift({ ...entry, id: Date.now() });
-      closeLog();
-      renderAll();
-      toast('Activity saved ✓');
+      // Hard-fail: surface the error so it can be debugged, do NOT silently save locally.
+      console.error('Supabase insert failed:', err?.message ?? err, err);
+      toast('Save failed — check console for details.');
     }
   } else {
+    // No Supabase configured — local-only mode (dev / no env vars)
     S.entries.unshift({ ...entry, id: Date.now() });
     closeLog();
     renderAll();
@@ -828,11 +828,11 @@ function renderWrapped() {
   }
 
   // Top 3 by combined energy + engagement score
-  const sorted = [...S.entries].sort((a, b) => (b.energy + b.engage) - (a.energy + a.engage));
+  const sorted = [...S.entries].sort((a, b) => (b.energy + b.engagement) - (a.energy + a.engagement));
   const top3 = sorted.slice(0, 3);
 
   topEl.innerHTML = top3.map(e => {
-    const avg = ((e.energy + e.engage) / 2).toFixed(1);
+    const avg = ((e.energy + e.engagement) / 2).toFixed(1);
     const flowBadge = e.flow
       ? '<span style="font-size:0.6rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;background:rgba(255,255,255,0.18);border-radius:100px;padding:2px 7px;margin-left:6px;">FLOW</span>'
       : '';
@@ -845,7 +845,7 @@ function renderWrapped() {
 
   // Deterministic summary: counts and averages only — no AI-style language
   const avgE  = (S.entries.reduce((s, e) => s + e.energy, 0) / S.entries.length).toFixed(1);
-  const avgEn = (S.entries.reduce((s, e) => s + e.engage, 0) / S.entries.length).toFixed(1);
+  const avgEn = (S.entries.reduce((s, e) => s + e.engagement, 0) / S.entries.length).toFixed(1);
   const flowCount = S.entries.filter(e => e.flow).length;
   const parts = [
     `${S.entries.length} ${S.entries.length === 1 ? 'activity' : 'activities'} logged.`,
@@ -1030,7 +1030,8 @@ async function loadFromDB() {
       computeDayAndStreakFromDemoData();
     }
   } catch (err) {
-    console.warn('Supabase load failed:', err?.message ?? err);
+    console.error('Supabase load failed:', err?.message ?? err, err);
+    toast('Could not load entries — check console for details.');
     computeDayAndStreakFromDemoData();
   }
 }
